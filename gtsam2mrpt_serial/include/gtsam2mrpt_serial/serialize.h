@@ -1,6 +1,9 @@
 #pragma once
 
-namespace xxx {
+#include <mrpt/io/CStream.h>
+
+namespace gtsam2mrpt_serial
+{
+//
 
 }
-
