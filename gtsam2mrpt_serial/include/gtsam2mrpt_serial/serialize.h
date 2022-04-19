@@ -16,6 +16,7 @@ namespace gtsam
 class Values;
 class Value;
 class NonlinearFactorGraph;
+class NonlinearFactor;
 }  // namespace gtsam
 namespace mrpt::serialization
 {
@@ -37,6 +38,12 @@ mrpt::serialization::CArchive& operator<<(
 mrpt::serialization::CArchive& operator<<(
     mrpt::serialization::CArchive& out, const gtsam::Value& value);
 
+mrpt::serialization::CArchive& operator<<(
+    mrpt::serialization::CArchive& out, const gtsam::NonlinearFactorGraph& fg);
+
+mrpt::serialization::CArchive& operator<<(
+    mrpt::serialization::CArchive& out, const gtsam::NonlinearFactor& f);
+
 /** @}
  */
 
@@ -52,6 +59,11 @@ mrpt::serialization::CArchive& operator>>(
 
 void deserialize_and_insert(
     mrpt::serialization::CArchive& in, uint64_t key, gtsam::Values& values);
+
+mrpt::serialization::CArchive& operator>>(
+    mrpt::serialization::CArchive& in, gtsam::NonlinearFactorGraph& fg);
+
+gtsam::NonlinearFactor* deserialize_factor(mrpt::serialization::CArchive& in);
 
 /** @}
  */
