@@ -21,3 +21,13 @@ C++17 is required since that is the minimum C++ standard required by MRPT.
 ## Examples of use. 
 
 See [gtsam2mrpt_serial/tests/main.cpp](gtsam2mrpt_serial/tests/main.cpp).
+
+## Performance
+
+Simple performance profiling shows an average time cost of roughly **50% the native Boost binary serialization mechanism** for mid-sized graphs.
+
+The following quantitative analysis was done with [this code](gtsam2mrpt_serial/tests/main.cpp), on an Ubuntu 20.04 (Boost 1.71, MRPT 2.4.4) and a Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz CPU. Note that the time scale is **logarithmic**.
+
+![profiling-ser](docs/profiling-ser.png)
+
+![profiling-deser](docs/profiling-deser.png)
