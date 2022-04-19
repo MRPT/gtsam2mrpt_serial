@@ -69,6 +69,12 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
 // ----------------------------------
 // De-serialize one individual value
 // ----------------------------------
+// template <typename Type>
+// static Type deserialize_value(mrpt::serialization::CArchive& in)
+
+// ----------------------------------
+// De-serialize one individual value
+// ----------------------------------
 void gtsam2mrpt_serial::deserialize_and_insert(
     mrpt::serialization::CArchive& in, uint64_t key, gtsam::Values& values)
 {
@@ -212,57 +218,126 @@ static void serialize_noise_robust(
     using namespace gtsam::noiseModel;
 
     // Base: ReweightScheme reweight_;
-    out << robust->reweight_;
+    out.WriteAs<uint32_t>(robust->reweightScheme());
 
     // Derived:
     if (auto* n = dynamic_cast<const mEstimator::Null*>(robust.get()); n)
     {
-        //
+        // no params
         out.WriteAs<std::string>("Null");
     }
     else if (auto* n = dynamic_cast<const mEstimator::Fair*>(robust.get()); n)
     {
         out.WriteAs<std::string>("Fair");
-        out << n->c_;
+        out << n->modelParameter();
     }
     else if (auto* n = dynamic_cast<const mEstimator::Huber*>(robust.get()); n)
     {
         out.WriteAs<std::string>("Huber");
-        out << n->k_;
+        out << n->modelParameter();
     }
     else if (auto* n = dynamic_cast<const mEstimator::Cauchy*>(robust.get()); n)
     {
         out.WriteAs<std::string>("Cauchy");
-        out << n->k_;
+        out << n->modelParameter();
     }
     else if (auto* n = dynamic_cast<const mEstimator::Tukey*>(robust.get()); n)
     {
         out.WriteAs<std::string>("Tukey");
-        out << n->c_;
+        out << n->modelParameter();
     }
     else if (auto* n = dynamic_cast<const mEstimator::Welsch*>(robust.get()); n)
     {
         out.WriteAs<std::string>("Welsch");
-        out << n->c_;
+        out << n->modelParameter();
     }
     else if (auto* n =
                  dynamic_cast<const mEstimator::GemanMcClure*>(robust.get());
              n)
     {
         out.WriteAs<std::string>("GemanMcClure");
-        out << n->c_;
+        out << n->modelParameter();
     }
     else if (auto* n = dynamic_cast<const mEstimator::DCS*>(robust.get()); n)
     {
         out.WriteAs<std::string>("DCS");
-        out << n->c_;
+        out << n->modelParameter();
     }
     else if (auto* n =
                  dynamic_cast<const mEstimator::L2WithDeadZone*>(robust.get());
              n)
     {
         out.WriteAs<std::string>("L2WithDeadZone");
-        out << n->k_;
+        out << n->modelParameter();
+    }
+}
+
+static gtsam::noiseModel::mEstimator::Base::shared_ptr deserialize_noise_robust(
+    mrpt::serialization::CArchive& in)
+{
+    using namespace gtsam;
+    using namespace gtsam::noiseModel;
+
+    const bool isNotNull = in.ReadAs<bool>();
+    ASSERT_(isNotNull);
+
+    // Base: ReweightScheme reweight_;
+    const auto scheme =
+        static_cast<mEstimator::Base::ReweightScheme>(in.ReadAs<uint32_t>());
+
+    const auto t = in.ReadAs<std::string>();
+
+    // Derived:
+    if (t == "Null")
+    {
+        // no params
+        return gtsam::noiseModel::mEstimator::Null::Create();
+    }
+    else if (t == "Fair")
+    {
+        const double p = in.ReadAs<double>();
+        return gtsam::noiseModel::mEstimator::Fair::Create(p);
+    }
+    else if (t == "Huber")
+    {
+        const double p = in.ReadAs<double>();
+        return gtsam::noiseModel::mEstimator::Huber::Create(p);
+    }
+    else if (t == "Cauchy")
+    {
+        const double p = in.ReadAs<double>();
+        return gtsam::noiseModel::mEstimator::Cauchy::Create(p);
+    }
+    else if (t == "Tukey")
+    {
+        const double p = in.ReadAs<double>();
+        return gtsam::noiseModel::mEstimator::Tukey::Create(p);
+    }
+    else if (t == "Welsch")
+    {
+        const double p = in.ReadAs<double>();
+        return gtsam::noiseModel::mEstimator::Welsch::Create(p);
+    }
+    else if (t == "GemanMcClure")
+    {
+        const double p = in.ReadAs<double>();
+        return gtsam::noiseModel::mEstimator::GemanMcClure::Create(p);
+    }
+    else if (t == "DCS")
+    {
+        const double p = in.ReadAs<double>();
+        return gtsam::noiseModel::mEstimator::DCS::Create(p);
+    }
+    else if (t == "L2WithDeadZone")
+    {
+        const double p = in.ReadAs<double>();
+        return gtsam::noiseModel::mEstimator::L2WithDeadZone::Create(p);
+    }
+    else
+    {
+        THROW_EXCEPTION_FMT(
+            "Unknown robust noiseModel found while deserializing: '%s'",
+            t.c_str());
     }
 }
 
@@ -314,9 +389,65 @@ static void serialize_noise_model(
     }
     else
     {
-        std::cerr << "Unknown noiseModel found whie serializing:\n";
+        std::cerr << "Unknown noiseModel found while serializing:\n";
         noise->print();
-        THROW_EXCEPTION("Unknown noiseModel found whie serializing.");
+        THROW_EXCEPTION("Unknown noiseModel found while serializing.");
+    }
+}
+
+static gtsam::SharedNoiseModel deserialize_noise_model(
+    mrpt::serialization::CArchive& in)
+{
+    using namespace gtsam;
+
+    const bool isNotNull = in.ReadAs<bool>();
+    if (!isNotNull) return {};
+
+    // Base data:
+    const auto dim = in.ReadAs<uint16_t>();
+
+    const auto t = in.ReadAs<std::string>();
+
+    // Derived:
+    if (t == "Gaussian")
+    {
+        mrpt::math::CMatrixD m;
+        in >> m;
+        gtsam::Matrix mat = m.asEigen();
+        return noiseModel::Gaussian::SqrtInformation(mat);
+    }
+    else if (t == "Diagonal")
+    {
+        mrpt::math::CMatrixD mSigmas;
+        in >> mSigmas;
+        gtsam::Matrix matSigmas = mSigmas.asEigen();
+        return noiseModel::Diagonal::Sigmas(matSigmas);
+    }
+    else if (t == "Constrained")
+    {
+        mrpt::math::CMatrixD mMu;
+        in >> mMu;
+        gtsam::Matrix matMu = mMu.asEigen();
+        return noiseModel::Constrained::All(dim, matMu);
+    }
+    else if (t == "Isotropic")
+    {
+        double sigma = in.ReadAs<double>();
+        return noiseModel::Isotropic::Sigma(dim, sigma);
+    }
+    else if (t == "Unit")
+    {  //
+        return noiseModel::Unit::Create(dim);
+    }
+    else if (t == "Robust")
+    {
+        auto rob   = deserialize_noise_robust(in);
+        auto noise = deserialize_noise_model(in);
+        return noiseModel::Robust::Create(rob, noise);
+    }
+    else
+    {  // Error:
+        THROW_EXCEPTION_FMT("Unknown noiseModel type: '%s'", t.c_str());
     }
 }
 
@@ -380,7 +511,49 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
 gtsam::NonlinearFactor* gtsam2mrpt_serial::deserialize_factor(
     mrpt::serialization::CArchive& in)
 {
-    //    const auto typeName = in.ReadAs<std::string>();
+    using namespace gtsam;
 
-    return nullptr;
+    // Keys:
+    const auto       nKeys = in.ReadAs<uint16_t>();
+    std::vector<Key> keys(nKeys);
+    for (size_t i = 0; i < nKeys; i++) in >> keys.at(i);
+    const auto k0 = keys.at(0);
+
+    const auto t = in.ReadAs<std::string>();
+    Values     vals;
+
+#define DESERIALIZE_PRIOR_FACTOR(TYPE__)                               \
+    if (t == "PriorFactor<" #TYPE__ ">")                               \
+    {                                                                  \
+        auto noise = deserialize_noise_model(in);                      \
+        deserialize_and_insert(in, 0, vals);                           \
+        return new PriorFactor<TYPE__>(k0, vals.at<TYPE__>(0), noise); \
+    }
+
+#define DESERIALIZE_BETWEEN_FACTOR(TYPE__)                                   \
+    if (t == "BetweenFactor<" #TYPE__ ">")                                   \
+    {                                                                        \
+        const auto k1    = keys.at(1);                                       \
+        auto       noise = deserialize_noise_model(in);                      \
+        deserialize_and_insert(in, 0, vals);                                 \
+        return new BetweenFactor<TYPE__>(k0, k1, vals.at<TYPE__>(0), noise); \
+    }
+
+    if (0) {}
+    //
+    DESERIALIZE_PRIOR_FACTOR(Point2)
+    DESERIALIZE_PRIOR_FACTOR(Point3)
+    DESERIALIZE_PRIOR_FACTOR(Pose2)
+    DESERIALIZE_PRIOR_FACTOR(Pose3)
+    //
+    DESERIALIZE_BETWEEN_FACTOR(Point2)
+    DESERIALIZE_BETWEEN_FACTOR(Point3)
+    DESERIALIZE_BETWEEN_FACTOR(Pose2)
+    DESERIALIZE_BETWEEN_FACTOR(Pose3)
+    //
+    else
+    {
+        THROW_EXCEPTION_FMT(
+            "Deserialization not implemented for '%s'", t.c_str());
+    }
 }
