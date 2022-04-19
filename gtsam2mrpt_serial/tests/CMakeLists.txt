@@ -4,6 +4,7 @@ add_executable(${PROJECT_NAME}
     main.cpp
     sampleData.cpp
     sampleData.h
+    boost-exports.h
 )
 
 target_link_libraries(${PROJECT_NAME}
