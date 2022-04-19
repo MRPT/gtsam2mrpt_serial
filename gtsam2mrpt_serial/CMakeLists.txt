@@ -2,12 +2,14 @@ project(gtsam2mrpt_serial)
 
 find_package(mrpt-serialization REQUIRED)
 find_package(mrpt-io REQUIRED)
+find_package(mrpt-poses REQUIRED)
 
 find_package(GTSAM REQUIRED)
 
 
 add_library(${PROJECT_NAME}
-	gtsam2mrpt_serial.cpp
+	serialize.cpp
+	include/gtsam2mrpt_serial/serialize.h
 )
 
 #add_library(libs::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -29,6 +31,7 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC
 		mrpt::serialization
 		mrpt::io
+		mrpt::poses
 		gtsam
 )
 
