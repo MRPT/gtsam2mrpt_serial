@@ -9,7 +9,7 @@ Storage format has the advantages of [mrpt-serialization](https://docs.mrpt.org/
 - Binary files are **portable** between machine architectures, endianness, word size, and operative system (unlike Boost).
 - Support for **versioning**, so future versions will be able to read old files.
 - Automatic support for `.gz` compression via [mrpt::io::CFileGZOutputStream](https://docs.mrpt.org/reference/latest/class_mrpt_io_CFileGZOutputStream.html).
-- GTSAM objects can be serialized to/from any stream defined in [mrpt-io](group_mrpt_io_grp.html), like TCP sockets, files, or pipes.
+- GTSAM objects can be serialized to/from any stream defined in [mrpt-io](https://docs.mrpt.org/reference/latest/group_mrpt_io_grp.html), like TCP sockets, files, or pipes.
 
 C++17 is required since that is the minimum C++ standard required by MRPT. 
 
