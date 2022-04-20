@@ -7,4 +7,4 @@ include(CTest)
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
 add_subdirectory(gtsam2mrpt_serial)
-#add_subdirectory(app)
+
