@@ -54,6 +54,19 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
         const auto& v = val->value();
         out << v.x() << v.y() << v.z();
     }
+    else if (auto* val = dynamic_cast<const GenericValue<Rot2>*>(&value); val)
+    {
+        out.WriteAs<std::string>("Rot2");
+        const auto& v = val->value();
+        out << v.theta();
+    }
+    else if (auto* val = dynamic_cast<const GenericValue<Rot3>*>(&value); val)
+    {
+        out.WriteAs<std::string>("Rot3");
+        const auto& v   = val->value();
+        const auto  ypr = mrpt::gtsam_wrappers::toTPose3D(v);
+        out << ypr.yaw << ypr.pitch << ypr.roll;
+    }
     else
     {
         std::cerr << "Serialization not implemented for this gtsam::Value:\n";
@@ -105,6 +118,22 @@ void gtsam2mrpt_serial::deserialize_and_insert(
         double x, y, z;
         in >> x >> y >> z;
         gtsam::Point3 v(x, y, z);
+        values.insert(key, v);
+    }
+    else if (typeName == "Rot2")
+    {
+        double theta;
+        in >> theta;
+        const auto v = gtsam::Rot2::fromAngle(theta);
+        values.insert(key, v);
+    }
+    else if (typeName == "Rot3")
+    {
+        double yaw, pitch, roll;
+        in >> yaw >> pitch >> roll;
+        mrpt::math::TPose3D p(0, 0, 0, yaw, pitch, roll);
+        const auto          v =
+            gtsam::Rot3(gtsam::Matrix3(p.getRotationMatrix().asEigen()));
         values.insert(key, v);
     }
     else
@@ -296,42 +325,42 @@ static gtsam::noiseModel::mEstimator::Base::shared_ptr deserialize_noise_robust(
     else if (t == "Fair")
     {
         const double p = in.ReadAs<double>();
-        return gtsam::noiseModel::mEstimator::Fair::Create(p);
+        return gtsam::noiseModel::mEstimator::Fair::Create(p, scheme);
     }
     else if (t == "Huber")
     {
         const double p = in.ReadAs<double>();
-        return gtsam::noiseModel::mEstimator::Huber::Create(p);
+        return gtsam::noiseModel::mEstimator::Huber::Create(p, scheme);
     }
     else if (t == "Cauchy")
     {
         const double p = in.ReadAs<double>();
-        return gtsam::noiseModel::mEstimator::Cauchy::Create(p);
+        return gtsam::noiseModel::mEstimator::Cauchy::Create(p, scheme);
     }
     else if (t == "Tukey")
     {
         const double p = in.ReadAs<double>();
-        return gtsam::noiseModel::mEstimator::Tukey::Create(p);
+        return gtsam::noiseModel::mEstimator::Tukey::Create(p, scheme);
     }
     else if (t == "Welsch")
     {
         const double p = in.ReadAs<double>();
-        return gtsam::noiseModel::mEstimator::Welsch::Create(p);
+        return gtsam::noiseModel::mEstimator::Welsch::Create(p, scheme);
     }
     else if (t == "GemanMcClure")
     {
         const double p = in.ReadAs<double>();
-        return gtsam::noiseModel::mEstimator::GemanMcClure::Create(p);
+        return gtsam::noiseModel::mEstimator::GemanMcClure::Create(p, scheme);
     }
     else if (t == "DCS")
     {
         const double p = in.ReadAs<double>();
-        return gtsam::noiseModel::mEstimator::DCS::Create(p);
+        return gtsam::noiseModel::mEstimator::DCS::Create(p, scheme);
     }
     else if (t == "L2WithDeadZone")
     {
         const double p = in.ReadAs<double>();
-        return gtsam::noiseModel::mEstimator::L2WithDeadZone::Create(p);
+        return gtsam::noiseModel::mEstimator::L2WithDeadZone::Create(p, scheme);
     }
     else
     {

@@ -104,11 +104,14 @@ static void testSerializeProfiler(size_t n)
         "%05u_v_%05u_f", static_cast<unsigned int>(v.size()),
         static_cast<unsigned int>(fg.size()));
 
-    const auto sProfSer   = "serialize_"s + sProfPost;
-    const auto sProfDeser = "deserialize_"s + sProfPost;
+    const auto sProfSer    = "serialize_"s + sProfPost;
+    const auto sProfDeser  = "deserialize_"s + sProfPost;
+    const auto sProfSerLen = "serialize_"s + sProfPost + "_bytes"s;
 
     const auto sProfSerBoost   = "serialize_"s + sProfPost + "_boost"s;
     const auto sProfDeserBoost = "deserialize_"s + sProfPost + "_boost"s;
+    const auto sProfSerBoostLen =
+        "serialize_"s + sProfPost + "_boost"s + "_bytes"s;
 
     for (size_t idx = 0; idx < numReps; idx++)
     {
@@ -122,6 +125,9 @@ static void testSerializeProfiler(size_t n)
 
             auto tle = mrpt::system::CTimeLoggerEntry(profiler, sProfSer);
             arch << v << fg;
+
+            tle.stop();
+            profiler.registerUserMeasure(sProfSerLen, buf.getTotalBytesCount());
         }
         buf.Seek(0);
 
@@ -147,6 +153,9 @@ static void testSerializeProfiler(size_t n)
 
             gtsam::serializeToBinaryStream(v, binBuf);
             gtsam::serializeToBinaryStream(fg, binBuf);
+
+            tle.stop();
+            profiler.registerUserMeasure(sProfSerBoostLen, binBuf.str().size());
         }
         // Read back:
         gtsam::Values               v3;
@@ -192,16 +201,16 @@ int main(int, char**)
 
     for (const auto size : sizes)
     {
-        tstWrap(
-            "Values N="s + std::to_string(size),
-            [=]() { testSerializeValues(size); });
-        tstWrap(
-            "FactorGraph  N="s + std::to_string(size),
-            [=]() { testSerializeFactorGraph(size); });
+        tstWrap("Values N="s + std::to_string(size), [=]() {
+            testSerializeValues(size);
+        });
+        tstWrap("FactorGraph  N="s + std::to_string(size), [=]() {
+            testSerializeFactorGraph(size);
+        });
 
-        tstWrap(
-            "Profiler N="s + std::to_string(size),
-            [=]() { testSerializeProfiler(size); });
+        tstWrap("Profiler N="s + std::to_string(size), [=]() {
+            testSerializeProfiler(size);
+        });
     }
 
     // profiler.saveToMFile("profiler.m");

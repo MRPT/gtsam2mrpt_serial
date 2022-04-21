@@ -36,13 +36,23 @@ gtsam::Values createTestValues(size_t count)
     using gtsam::symbol_shorthand::C;
     using gtsam::symbol_shorthand::D;
 
+    const auto rot1 = gtsam::Rot3::RzRyRx(0.3, 0.1, -0.5);
+    const auto rot2 = gtsam::Rot3::RzRyRx(-0.2, -0.7, 1.8);
+
     gtsam::Values v;
 
     for (size_t i = 0; i < count; i++)
         v.insert(A(i), gtsam::Pose2(rnd(), rnd(), rnd()));
 
-    for (size_t i = 0; i < count; i++)  //
-        v.insert(B(i), gtsam::Pose3::identity());
+    for (size_t i = 0; i < count; i++)
+    {
+        v.insert(B(3 * i + 0), gtsam::Pose3::identity());
+        v.insert(B(3 * i + 1), gtsam::Rot3::RzRyRx(rnd(), rnd(), rnd()));
+        v.insert(
+            B(3 * i + 2), gtsam::Pose3(
+                              gtsam::Rot3::RzRyRx(rnd(), rnd(), rnd()),
+                              {rnd(), rnd(), rnd()}));
+    }
 
     for (size_t i = 0; i < count; i++)  //
         v.insert(C(i), gtsam::Point2(rnd(), rnd()));
@@ -87,6 +97,12 @@ gtsam::NonlinearFactorGraph createTestGraph(size_t count)
 
         fg.addPrior<Pose3>(F(i), Pose3::identity(), noise6);
         fg.addPrior<Pose3>(G(i), Pose3::identity(), robust6);
+        fg.addPrior<Pose3>(
+            H(i),
+            gtsam::Pose3(
+                gtsam::Rot3::RzRyRx(rnd(), rnd(), rnd()),
+                {rnd(), rnd(), rnd()}),
+            noise6);
     }
 
     for (size_t i = 0; i < count; i++)
@@ -99,7 +115,11 @@ gtsam::NonlinearFactorGraph createTestGraph(size_t count)
         fg.emplace_shared<BetweenFactor<Pose3>>(
             C(2 * i), C(2 * i + 1), Pose3::identity(), noise6);
         fg.emplace_shared<BetweenFactor<Pose3>>(
-            D(2 * i), D(2 * i + 1), Pose3::identity(), robust6);
+            D(2 * i), D(2 * i + 1),
+            gtsam::Pose3(
+                gtsam::Rot3::RzRyRx(rnd(), rnd(), rnd()),
+                {rnd(), rnd(), rnd()}),
+            robust6);
     }
 
     return fg;
