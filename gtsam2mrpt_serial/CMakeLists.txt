@@ -1,4 +1,3 @@
-project(gtsam2mrpt_serial)
 
 find_package(mrpt-serialization REQUIRED)
 find_package(mrpt-io REQUIRED)
@@ -39,6 +38,14 @@ target_link_libraries(${PROJECT_NAME}
 # Final lib name: g2m::gtsam2mrpt_serial
 #
 add_library(g2m::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+# Required to create .so.x.y.z symlinks.
+set_target_properties(
+	${PROJECT_NAME}
+	PROPERTIES
+		SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+		VERSION ${PROJECT_VERSION}
+)
 
 export(
   TARGETS ${PROJECT_NAME}
