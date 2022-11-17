@@ -46,7 +46,7 @@ gtsam::Values createTestValues(size_t count)
 
     for (size_t i = 0; i < count; i++)
     {
-        v.insert(B(3 * i + 0), gtsam::Pose3::identity());
+        v.insert(B(3 * i + 0), gtsam::Pose3::Identity());
         v.insert(B(3 * i + 1), gtsam::Rot3::RzRyRx(rnd(), rnd(), rnd()));
         v.insert(
             B(3 * i + 2), gtsam::Pose3(
@@ -95,8 +95,8 @@ gtsam::NonlinearFactorGraph createTestGraph(size_t count)
         fg.addPrior<Pose2>(D(i), Pose2(rnd(), rnd(), rnd()), noise3);
         fg.addPrior<Pose2>(E(i), Pose2(rnd(), rnd(), rnd()), robust3);
 
-        fg.addPrior<Pose3>(F(i), Pose3::identity(), noise6);
-        fg.addPrior<Pose3>(G(i), Pose3::identity(), robust6);
+        fg.addPrior<Pose3>(F(i), Pose3::Identity(), noise6);
+        fg.addPrior<Pose3>(G(i), Pose3::Identity(), robust6);
         fg.addPrior<Pose3>(
             H(i),
             gtsam::Pose3(
@@ -108,12 +108,12 @@ gtsam::NonlinearFactorGraph createTestGraph(size_t count)
     for (size_t i = 0; i < count; i++)
     {
         fg.emplace_shared<BetweenFactor<Pose2>>(
-            A(2 * i), A(2 * i + 1), Pose2::identity(), noise3);
+            A(2 * i), A(2 * i + 1), Pose2::Identity(), noise3);
         fg.emplace_shared<BetweenFactor<Pose2>>(
-            B(2 * i), B(2 * i + 1), Pose2::identity(), robust3);
+            B(2 * i), B(2 * i + 1), Pose2::Identity(), robust3);
 
         fg.emplace_shared<BetweenFactor<Pose3>>(
-            C(2 * i), C(2 * i + 1), Pose3::identity(), noise6);
+            C(2 * i), C(2 * i + 1), Pose3::Identity(), noise6);
         fg.emplace_shared<BetweenFactor<Pose3>>(
             D(2 * i), D(2 * i + 1),
             gtsam::Pose3(
