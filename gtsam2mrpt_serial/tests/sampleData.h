@@ -1,7 +1,7 @@
 /* +------------------------------------------------------------------------+
    |                     gtsam2mrpt_serial library                          |
    |                                                                        |
-   | Copyright (c) 2022, Jose Luis Blanco Claraco and contributors          |
+   | Copyright (c) 2022-2026, Jose Luis Blanco Claraco and contributors     |
    | Released under 3-clause BSD license                                    |
    +------------------------------------------------------------------------+ */
 

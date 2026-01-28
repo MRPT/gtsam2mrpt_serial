@@ -1,7 +1,7 @@
 /* +------------------------------------------------------------------------+
    |                     gtsam2mrpt_serial library                          |
    |                                                                        |
-   | Copyright (c) 2022, Jose Luis Blanco Claraco and contributors          |
+   | Copyright (c) 2022-2026, Jose Luis Blanco Claraco and contributors     |
    | Released under 3-clause BSD license                                    |
    +------------------------------------------------------------------------+ */
 
@@ -201,16 +201,16 @@ int main(int, char**)
 
     for (const auto size : sizes)
     {
-        tstWrap("Values N="s + std::to_string(size), [=]() {
-            testSerializeValues(size);
-        });
-        tstWrap("FactorGraph  N="s + std::to_string(size), [=]() {
-            testSerializeFactorGraph(size);
-        });
+        tstWrap(
+            "Values N="s + std::to_string(size),
+            [=]() { testSerializeValues(size); });
+        tstWrap(
+            "FactorGraph  N="s + std::to_string(size),
+            [=]() { testSerializeFactorGraph(size); });
 
-        tstWrap("Profiler N="s + std::to_string(size), [=]() {
-            testSerializeProfiler(size);
-        });
+        tstWrap(
+            "Profiler N="s + std::to_string(size),
+            [=]() { testSerializeProfiler(size); });
     }
 
     // profiler.saveToMFile("profiler.m");

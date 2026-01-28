@@ -1,71 +1,40 @@
-
+# 1. Find dependencies
+find_package(GTSAM REQUIRED)
 find_package(mrpt-serialization REQUIRED)
 find_package(mrpt-io REQUIRED)
+find_package(mrpt-math REQUIRED)
+find_package(mrpt-random REQUIRED)
 find_package(mrpt-poses REQUIRED)
 
-if (NOT TARGET gtsam)
-	find_package(GTSAM REQUIRED)
-endif()
+# 2. Collect sources and public headers
+# In your tree, sources are in the current dir and headers in include/ [cite: 1]
+file(GLOB_RECURSE LIB_SRCS *.cpp)
+file(GLOB_RECURSE LIB_PUBLIC_HDRS include/*.h)
 
-add_library(${PROJECT_NAME}
-	serialize.cpp
-	include/gtsam2mrpt_serial/serialize.h
+# 3. Define the library using MOLA macros
+mola_add_library(
+  TARGET ${PROJECT_NAME}
+  SOURCES ${LIB_SRCS} ${LIB_PUBLIC_HDRS}
+  PUBLIC_LINK_LIBRARIES
+    gtsam
+    mrpt::serialization
+    mrpt::io
+    mrpt::math
+    mrpt::random
+    mrpt::poses
+  CMAKE_DEPENDENCIES
+    mola_common
+    mrpt-serialization
+    mrpt-io
+    mrpt-math
+    mrpt-random
+    mrpt-poses
 )
 
-target_include_directories(${PROJECT_NAME}
-	PUBLIC
-		$<INSTALL_INTERFACE:include>
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	PRIVATE
-		${CMAKE_CURRENT_SOURCE_DIR}
-)
+# Ensure C++17 as required by MRPT and this library
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
-target_compile_features(${PROJECT_NAME}
-	PRIVATE
-		cxx_std_17
-)
-
-target_link_libraries(${PROJECT_NAME}
-	PUBLIC
-		mrpt::serialization
-		mrpt::io
-		mrpt::poses
-		gtsam
-)
-
-# Add alias so it's defined exactly the same than if exported/imported via cmake
-#
-# Final lib name: g2m::gtsam2mrpt_serial
-#
-add_library(g2m::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-# Required to create .so.x.y.z symlinks.
-set_target_properties(
-	${PROJECT_NAME}
-	PROPERTIES
-		SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-		VERSION ${PROJECT_VERSION}
-)
-
-export(
-  TARGETS ${PROJECT_NAME}
-  FILE ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-targets.cmake
-  NAMESPACE g2m::
-)
-
-install(TARGETS ${PROJECT_NAME}
-	EXPORT ${PROJECT_NAME}-targets
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	PUBLIC_HEADER DESTINATION include/
-)
-install(EXPORT ${PROJECT_NAME}-targets
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/cmake/
-	NAMESPACE g2m::
-)
-
-
+# 4. Define tests if enabled
 if(BUILD_TESTING)
-	add_subdirectory(tests)
+    add_subdirectory(tests)
 endif()
