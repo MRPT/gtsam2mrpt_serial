@@ -8,14 +8,14 @@ Storage format has the advantages of [mrpt-serialization](https://docs.mrpt.org/
 - Fast and efficient (binary storage by default).
 - Binary files are **portable** between machine architectures, endianness, word size, and operative system (unlike Boost).
 - Support for **versioning**, so future versions will be able to read old files.
-- Automatic support for `.gz` compression via [mrpt::io::CFileGZOutputStream](https://docs.mrpt.org/reference/latest/class_mrpt_io_CFileGZOutputStream.html).
+- Automatic support for `.gz` and `.zstd` compression via [mrpt::io::CCompressedOutputStream](https://docs.mrpt.org/reference/latest/class_mrpt_io_CCompressedOutputStream.html).
 - GTSAM objects can be serialized to/from any stream defined in [mrpt-io](https://docs.mrpt.org/reference/latest/group_mrpt_io_grp.html), like TCP sockets, files, or pipes.
 
 C++17 is required since that is the minimum C++ standard required by MRPT. 
 
 ## Dependencies
 
-- MRPT: Install with `sudo apt install libmrpt-dev` (on Ubuntu 22.04 or newer) or otherwise [see install instructions](https://docs.mrpt.org/reference/latest/download-mrpt.html).
+- MRPT: Install with `sudo apt install libmrpt-dev` (on Ubuntu 22.04 or newer) or from their ROS 2 packages, or otherwise [see install instructions](https://docs.mrpt.org/reference/latest/download-mrpt.html).
 - GTSAM: Build from sources or install from [the PPA](https://gtsam.org/get_started/).
 
 ## Examples of use. 
