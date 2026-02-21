@@ -2,8 +2,8 @@
 Changelog for package gtsam2mrpt_serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2026-02-21)
+------------------
 * Modernize and fix style
 * fix build in new gtsam
 * Add devcontainer for Rolling
