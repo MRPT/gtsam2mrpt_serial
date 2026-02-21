@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <cstdlib>
 
-// forward decls. for faster compilation in user translation units.
+// Forward declarations for faster compilation in user translation units.
 namespace gtsam
 {
 class Values;
@@ -25,9 +25,15 @@ class CArchive;
 
 namespace gtsam2mrpt_serial
 {
-/** \name serialize_grp Serialization functions.
- *  Serializes gtsam objects into a binary archive, which can be created with
- * mrpt::serialization::archiveFrom() from a physical I/O stream, socket, etc.
+/** \name Serialization
+ *  Binary serialization of GTSAM objects to an mrpt::serialization::CArchive.
+ *
+ *  Archives can be created with mrpt::serialization::archiveFrom() wrapping
+ *  any mrpt::io stream (files, sockets, pipes, etc.), with optional transparent
+ *  gzip / zstd compression via mrpt::io::CCompressedOutputStream.
+ *
+ *  The binary format is portable across architectures, endianness, and OS, and
+ *  supports versioning so future library versions can read older files.
  *
  * @{
  */
@@ -44,28 +50,33 @@ mrpt::serialization::CArchive& operator<<(
 mrpt::serialization::CArchive& operator<<(
     mrpt::serialization::CArchive& out, const gtsam::NonlinearFactor& f);
 
-/** @}
- */
+/** @} */
 
-/** \name deserialize_grp De-serialization functions.
- * De-serializes a gtsam::Values from a binary archive, which can be
- * created with mrpt::serialization::archiveFrom() from a physical I/O
- * stream, socket, etc.
+/** \name De-serialization
+ *  Binary de-serialization of GTSAM objects from an
+ * mrpt::serialization::CArchive.
  *
  * @{
  */
+
 mrpt::serialization::CArchive& operator>>(
     mrpt::serialization::CArchive& in, gtsam::Values& values);
 
+/** Deserializes a single gtsam::Value from \a in and inserts it into \a values
+ *  under the given \a key.  The type tag is read from the stream. */
 void deserialize_and_insert(
     mrpt::serialization::CArchive& in, uint64_t key, gtsam::Values& values);
 
 mrpt::serialization::CArchive& operator>>(
     mrpt::serialization::CArchive& in, gtsam::NonlinearFactorGraph& fg);
 
-gtsam::NonlinearFactor* deserialize_factor(mrpt::serialization::CArchive& in);
+/** Deserializes one factor from \a in and returns it as a raw, heap-allocated
+ *  pointer.  The caller takes ownership and is responsible for deletion
+ *  (typically by wrapping the result immediately in a shared_ptr or
+ *  boost::shared_ptr). */
+[[nodiscard]] gtsam::NonlinearFactor* deserialize_factor(
+    mrpt::serialization::CArchive& in);
 
-/** @}
- */
+/** @} */
 
 }  // namespace gtsam2mrpt_serial

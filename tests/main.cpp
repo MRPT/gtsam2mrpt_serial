@@ -6,12 +6,12 @@
    +------------------------------------------------------------------------+ */
 
 #include <gtsam/base/serialization.h>
+#include <gtsam2mrpt_serial/gtsam_detect_version.h>
 #include <gtsam2mrpt_serial/serialize.h>
 #include <mrpt/core/exceptions.h>
 #include <mrpt/io/CMemoryStream.h>
 #include <mrpt/serialization/CArchive.h>
 #include <mrpt/system/CTimeLogger.h>
-#include <gtsam2mrpt_serial/gtsam_detect_version.h>
 
 #include <functional>
 #include <iostream>
@@ -30,7 +30,7 @@ static void testSerializeValues(size_t n)
     const gtsam::Values v = createTestValues(n);
 
     // save values to binary stream:
-    // (Replace this with CFileGZOutputStream to save to a real file)
+    // (Replace this with CCompressedOutputStream to save to a real file)
     mrpt::io::CMemoryStream buf;
     {
         auto arch = mrpt::serialization::archiveFrom(buf);
@@ -65,7 +65,7 @@ static void testSerializeFactorGraph(size_t n)
     const gtsam::NonlinearFactorGraph fg = createTestGraph(n);
 
     // save to binary stream:
-    // (Replace this with CFileGZOutputStream to save to a real file)
+    // (Replace this with CCompressedOutputStream to save to a real file)
     mrpt::io::CMemoryStream buf;
     {
         auto arch = mrpt::serialization::archiveFrom(buf);

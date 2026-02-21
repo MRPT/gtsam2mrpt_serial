@@ -20,8 +20,6 @@
 #include <mrpt/poses/gtsam_wrappers.h>
 #include <mrpt/serialization/CArchive.h>
 
-#include <typeinfo>
-
 // ----------------------------------
 // Serialize individual values
 // ----------------------------------
@@ -36,34 +34,37 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
         const auto& v = val->value();
         out << v.x() << v.y() << v.theta();
     }
-    else if (auto* val = dynamic_cast<const GenericValue<Pose3>*>(&value); val)
+    else if (auto* val2 = dynamic_cast<const GenericValue<Pose3>*>(&value);
+             val2)
     {
         out.WriteAs<std::string>("Pose3");
-        const auto& v = val->value();
+        const auto& v = val2->value();
         out << mrpt::gtsam_wrappers::toTPose3D(v);
     }
-    else if (auto* val = dynamic_cast<const GenericValue<Point2>*>(&value); val)
+    else if (auto* val3 = dynamic_cast<const GenericValue<Point2>*>(&value);
+             val3)
     {
         out.WriteAs<std::string>("Point2");
-        const auto& v = val->value();
+        const auto& v = val3->value();
         out << v.x() << v.y();
     }
-    else if (auto* val = dynamic_cast<const GenericValue<Point3>*>(&value); val)
+    else if (auto* val4 = dynamic_cast<const GenericValue<Point3>*>(&value);
+             val4)
     {
         out.WriteAs<std::string>("Point3");
-        const auto& v = val->value();
+        const auto& v = val4->value();
         out << v.x() << v.y() << v.z();
     }
-    else if (auto* val = dynamic_cast<const GenericValue<Rot2>*>(&value); val)
+    else if (auto* val5 = dynamic_cast<const GenericValue<Rot2>*>(&value); val5)
     {
         out.WriteAs<std::string>("Rot2");
-        const auto& v = val->value();
+        const auto& v = val5->value();
         out << v.theta();
     }
-    else if (auto* val = dynamic_cast<const GenericValue<Rot3>*>(&value); val)
+    else if (auto* val6 = dynamic_cast<const GenericValue<Rot3>*>(&value); val6)
     {
         out.WriteAs<std::string>("Rot3");
-        const auto& v   = val->value();
+        const auto& v   = val6->value();
         const auto  ypr = mrpt::gtsam_wrappers::toTPose3D(v);
         out << ypr.yaw << ypr.pitch << ypr.roll;
     }
@@ -80,13 +81,7 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
 }
 
 // ----------------------------------
-// De-serialize one individual value
-// ----------------------------------
-// template <typename Type>
-// static Type deserialize_value(mrpt::serialization::CArchive& in)
-
-// ----------------------------------
-// De-serialize one individual value
+// De-serialize one individual value and insert it into a Values container.
 // ----------------------------------
 void gtsam2mrpt_serial::deserialize_and_insert(
     mrpt::serialization::CArchive& in, uint64_t key, gtsam::Values& values)
@@ -156,7 +151,10 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
     out << VALUES_SERIAL_VERSION;
     out.WriteAs<uint64_t>(values.size());
 
-    for (const auto& v : values) { out << v.key << v.value; }
+    for (const auto& v : values)
+    {
+        out << v.key << v.value;  // NOLINT
+    }
 
     return out;
 }
@@ -201,7 +199,7 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
         out.WriteAs<bool>(f.get() != nullptr);
         if (!f) continue;
 
-        out << *f;
+        out << *f;  // NOLINT
     }
 
     return out;
@@ -255,49 +253,53 @@ static void serialize_noise_robust(
         // no params
         out.WriteAs<std::string>("Null");
     }
-    else if (auto* n = dynamic_cast<const mEstimator::Fair*>(robust.get()); n)
+    else if (auto* n2 = dynamic_cast<const mEstimator::Fair*>(robust.get()); n2)
     {
         out.WriteAs<std::string>("Fair");
-        out << n->modelParameter();
+        out << n2->modelParameter();
     }
-    else if (auto* n = dynamic_cast<const mEstimator::Huber*>(robust.get()); n)
+    else if (auto* n3 = dynamic_cast<const mEstimator::Huber*>(robust.get());
+             n3)
     {
         out.WriteAs<std::string>("Huber");
-        out << n->modelParameter();
+        out << n3->modelParameter();
     }
-    else if (auto* n = dynamic_cast<const mEstimator::Cauchy*>(robust.get()); n)
+    else if (auto* n4 = dynamic_cast<const mEstimator::Cauchy*>(robust.get());
+             n4)
     {
         out.WriteAs<std::string>("Cauchy");
-        out << n->modelParameter();
+        out << n4->modelParameter();
     }
-    else if (auto* n = dynamic_cast<const mEstimator::Tukey*>(robust.get()); n)
+    else if (auto* n5 = dynamic_cast<const mEstimator::Tukey*>(robust.get());
+             n5)
     {
         out.WriteAs<std::string>("Tukey");
-        out << n->modelParameter();
+        out << n5->modelParameter();
     }
-    else if (auto* n = dynamic_cast<const mEstimator::Welsch*>(robust.get()); n)
+    else if (auto* n6 = dynamic_cast<const mEstimator::Welsch*>(robust.get());
+             n6)
     {
         out.WriteAs<std::string>("Welsch");
-        out << n->modelParameter();
+        out << n6->modelParameter();
     }
-    else if (auto* n =
+    else if (auto* n7 =
                  dynamic_cast<const mEstimator::GemanMcClure*>(robust.get());
-             n)
+             n7)
     {
         out.WriteAs<std::string>("GemanMcClure");
-        out << n->modelParameter();
+        out << n7->modelParameter();
     }
-    else if (auto* n = dynamic_cast<const mEstimator::DCS*>(robust.get()); n)
+    else if (auto* n8 = dynamic_cast<const mEstimator::DCS*>(robust.get()); n8)
     {
         out.WriteAs<std::string>("DCS");
-        out << n->modelParameter();
+        out << n8->modelParameter();
     }
-    else if (auto* n =
+    else if (auto* n9 =
                  dynamic_cast<const mEstimator::L2WithDeadZone*>(robust.get());
-             n)
+             n9)
     {
         out.WriteAs<std::string>("L2WithDeadZone");
-        out << n->modelParameter();
+        out << n9->modelParameter();
     }
 }
 
@@ -381,40 +383,44 @@ static void serialize_noise_model(
     // Base data:
     out.WriteAs<uint16_t>(noise->dim());
 
-    // Derived:
-    if (auto* n = dynamic_cast<const noiseModel::Gaussian*>(noise.get()); n)
-    {
-        out.WriteAs<std::string>("Gaussian");
-        out << mrpt::math::CMatrixD(n->R());
-    }
-    else if (auto* n = dynamic_cast<const noiseModel::Diagonal*>(noise.get());
-             n)
-    {
-        out.WriteAs<std::string>("Diagonal");
-        out << mrpt::math::CMatrixD(n->sigmas());
-    }
-    else if (auto* n =
-                 dynamic_cast<const noiseModel::Constrained*>(noise.get());
-             n)
-    {
-        out.WriteAs<std::string>("Constrained");
-        out << mrpt::math::CMatrixD(n->mu());
-    }
-    else if (auto* n = dynamic_cast<const noiseModel::Isotropic*>(noise.get());
-             n)
-    {
-        out.WriteAs<std::string>("Isotropic");
-        out << n->sigma();
-    }
-    else if (auto* n = dynamic_cast<const noiseModel::Unit*>(noise.get()); n)
+    // Derived: note that the order matters — more-derived types must be
+    // checked before their base classes (e.g. Isotropic < Diagonal <
+    // Gaussian).
+    if (auto* n = dynamic_cast<const noiseModel::Unit*>(noise.get()); n)
     {
         out.WriteAs<std::string>("Unit");
     }
-    else if (auto* n = dynamic_cast<const noiseModel::Robust*>(noise.get()); n)
+    else if (auto* n2 = dynamic_cast<const noiseModel::Isotropic*>(noise.get());
+             n2)
+    {
+        out.WriteAs<std::string>("Isotropic");
+        out << n2->sigma();
+    }
+    else if (auto* n3 =
+                 dynamic_cast<const noiseModel::Constrained*>(noise.get());
+             n3)
+    {
+        out.WriteAs<std::string>("Constrained");
+        out << mrpt::math::CMatrixD(n3->mu());
+    }
+    else if (auto* n4 = dynamic_cast<const noiseModel::Diagonal*>(noise.get());
+             n4)
+    {
+        out.WriteAs<std::string>("Diagonal");
+        out << mrpt::math::CMatrixD(n4->sigmas());
+    }
+    else if (auto* n5 = dynamic_cast<const noiseModel::Gaussian*>(noise.get());
+             n5)
+    {
+        out.WriteAs<std::string>("Gaussian");
+        out << mrpt::math::CMatrixD(n5->R());
+    }
+    else if (auto* n6 = dynamic_cast<const noiseModel::Robust*>(noise.get());
+             n6)
     {
         out.WriteAs<std::string>("Robust");
-        serialize_noise_robust(out, n->robust());
-        serialize_noise_model(out, n->noise());
+        serialize_noise_robust(out, n6->robust());
+        serialize_noise_model(out, n6->noise());
     }
     else
     {
@@ -492,24 +498,33 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
     out.WriteAs<uint16_t>(factor.keys().size());
     for (const auto& k : factor.keys()) out << k;
 
-#define SERIALIZE_PRIOR_FACTOR(TYPE__)                                       \
-    else if (auto* f = dynamic_cast<const PriorFactor<TYPE__>*>(&factor); f) \
-    {                                                                        \
-        out.WriteAs<std::string>("PriorFactor<" #TYPE__ ">");                \
-        serialize_noise_model(out, f->noiseModel());                         \
-        out << GenericValue<TYPE__>(f->prior());                             \
+// Each macro expansion introduces its own unique variable name (f_##TYPE__)
+// to avoid -Wshadow warnings from repeated use of the same identifier across
+// consecutive else-if branches.
+#define SERIALIZE_PRIOR_FACTOR(TYPE__)                               \
+    else if (auto* f_##TYPE__ =                                      \
+                 dynamic_cast<const PriorFactor<TYPE__>*>(&factor);  \
+             f_##TYPE__)                                             \
+    {                                                                \
+        out.WriteAs<std::string>("PriorFactor<" #TYPE__ ">");        \
+        serialize_noise_model(out, f_##TYPE__->noiseModel());        \
+        out << GenericValue<TYPE__>(f_##TYPE__->prior()); /*NOLINT*/ \
     }
 
-#define SERIALIZE_BETWEEN_FACTOR(TYPE__)                                       \
-    else if (auto* f = dynamic_cast<const BetweenFactor<TYPE__>*>(&factor); f) \
-    {                                                                          \
-        out.WriteAs<std::string>("BetweenFactor<" #TYPE__ ">");                \
-        serialize_noise_model(out, f->noiseModel());                           \
-        out << GenericValue<TYPE__>(f->measured());                            \
+#define SERIALIZE_BETWEEN_FACTOR(TYPE__)                                \
+    else if (auto* f_##TYPE__ =                                         \
+                 dynamic_cast<const BetweenFactor<TYPE__>*>(&factor);   \
+             f_##TYPE__)                                                \
+    {                                                                   \
+        out.WriteAs<std::string>("BetweenFactor<" #TYPE__ ">");         \
+        serialize_noise_model(out, f_##TYPE__->noiseModel());           \
+        out << GenericValue<TYPE__>(f_##TYPE__->measured()); /*NOLINT*/ \
     }
 
-    // Factor itself:
-    if (0) {}
+    // `if (0) {}` is a deliberate idiom: it gives all the SERIALIZE_*
+    // macros a uniform `else if (...)` prefix without a special-cased first
+    // branch.
+    if (0) {}  // NOLINT(readability-simplify-boolean-expr)
     //
     SERIALIZE_PRIOR_FACTOR(Point2)
     SERIALIZE_PRIOR_FACTOR(Point3)
@@ -527,7 +542,8 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
                      "gtsam::NonlinearFactor:\n";
         factor.print();
         THROW_EXCEPTION(
-            "Serialization not implemented, see error message above for type "
+            "Serialization not implemented, see error message above for "
+            "type "
             "details.");
     }
 
@@ -535,7 +551,7 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
 }
 
 // ----------------------------------
-// De-serialize one individual value
+// De-serialize one NonlinearFactor
 // ----------------------------------
 gtsam::NonlinearFactor* gtsam2mrpt_serial::deserialize_factor(
     mrpt::serialization::CArchive& in)
@@ -552,7 +568,7 @@ gtsam::NonlinearFactor* gtsam2mrpt_serial::deserialize_factor(
     Values     vals;
 
 #define DESERIALIZE_PRIOR_FACTOR(TYPE__)                               \
-    if (t == "PriorFactor<" #TYPE__ ">")                               \
+    else if (t == "PriorFactor<" #TYPE__ ">")                          \
     {                                                                  \
         auto noise = deserialize_noise_model(in);                      \
         deserialize_and_insert(in, 0, vals);                           \
@@ -560,7 +576,7 @@ gtsam::NonlinearFactor* gtsam2mrpt_serial::deserialize_factor(
     }
 
 #define DESERIALIZE_BETWEEN_FACTOR(TYPE__)                                   \
-    if (t == "BetweenFactor<" #TYPE__ ">")                                   \
+    else if (t == "BetweenFactor<" #TYPE__ ">")                              \
     {                                                                        \
         const auto k1    = keys.at(1);                                       \
         auto       noise = deserialize_noise_model(in);                      \
@@ -568,7 +584,9 @@ gtsam::NonlinearFactor* gtsam2mrpt_serial::deserialize_factor(
         return new BetweenFactor<TYPE__>(k0, k1, vals.at<TYPE__>(0), noise); \
     }
 
-    if (0) {}
+    // `if (0) {}` gives all DESERIALIZE_* macros a uniform `else if`
+    // prefix.
+    if (0) {}  // NOLINT(readability-simplify-boolean-expr)
     //
     DESERIALIZE_PRIOR_FACTOR(Point2)
     DESERIALIZE_PRIOR_FACTOR(Point3)

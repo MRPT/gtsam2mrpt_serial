@@ -1,15 +1,15 @@
-project(gtsam2mrpt_tests)
-
-add_executable(${PROJECT_NAME}
+add_executable(gtsam2mrpt_tests
     main.cpp
     sampleData.cpp
     sampleData.h
     boost-exports.h
 )
 
-target_link_libraries(${PROJECT_NAME}
+# 3. Link against your library defined in the root CMake 
+target_link_libraries(gtsam2mrpt_tests
     PRIVATE
         gtsam2mrpt_serial
 )
 
-add_test(gtsam2mrpt_serial_tests ${PROJECT_NAME})
+# 4. Use the MODERN add_test signature
+add_test(NAME gtsam2mrpt_serial_tests COMMAND gtsam2mrpt_tests)
