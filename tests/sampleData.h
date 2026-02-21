@@ -10,7 +10,6 @@
 #include <gtsam/nonlinear/NonlinearFactorGraph.h>
 #include <gtsam/nonlinear/Values.h>
 
-#include <cstdint>
 #include <cstdlib>
 
 gtsam::Values               createTestValues(size_t count = 1);

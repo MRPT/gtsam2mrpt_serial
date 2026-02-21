@@ -11,11 +11,15 @@
 #include <mrpt/io/CMemoryStream.h>
 #include <mrpt/serialization/CArchive.h>
 #include <mrpt/system/CTimeLogger.h>
+#include <gtsam2mrpt_serial/gtsam_detect_version.h>
 
 #include <functional>
 #include <iostream>
 
+#if GTSAM_USES_BOOST
 #include "boost-exports.h"
+#endif
+
 #include "sampleData.h"
 
 // --------------
@@ -87,6 +91,8 @@ static void testSerializeFactorGraph(size_t n)
         THROW_EXCEPTION("Not identical objects after deserialization");
     }
 }
+
+#if GTSAM_USES_BOOST
 
 static mrpt::system::CTimeLogger profiler;
 
@@ -174,6 +180,7 @@ static void testSerializeProfiler(size_t n)
         ASSERT_(fg.equals(fg3));
     }
 }
+#endif
 
 // --------------
 static int failed = 0;
@@ -208,9 +215,11 @@ int main(int, char**)
             "FactorGraph  N="s + std::to_string(size),
             [=]() { testSerializeFactorGraph(size); });
 
+#if GTSAM_USES_BOOST
         tstWrap(
             "Profiler N="s + std::to_string(size),
             [=]() { testSerializeProfiler(size); });
+#endif
     }
 
     // profiler.saveToMFile("profiler.m");
