@@ -9,7 +9,7 @@
 
 # gtsam2mrpt_serial
 
-A C++ library providing a bidirectional serialization bridge between [GTSAM](https://gtsam.org/) and [mrpt-serialization](https://docs.mrpt.org/reference/latest/group_mrpt_serialization_grp.html).
+A C++ library providing a bidirectional serialization bridge between [GTSAM](https://gtsam.org/) and [mrpt-serialization](https://docs.mrpt.org/reference/stable/group_mrpt_serialization_grp.html).
 
 Serialize and deserialize GTSAM data structures — including `NonlinearFactorGraph` and `Values` — to and from any mrpt I/O stream (files, sockets, pipes) with optional transparent compression.
 
@@ -18,13 +18,13 @@ Serialize and deserialize GTSAM data structures — including `NonlinearFactorGr
 - **Fast** — benchmarks show roughly half the wall-clock time of GTSAM's native Boost binary serialization for mid-sized graphs (see [Performance](#performance)).
 - **Portable** — the binary format is stable across machine architectures, endianness, word sizes, and operating systems, unlike Boost serialization.
 - **Versioned** — a version tag is embedded in every serialized object so that future library releases can read files produced by older ones.
-- **Compressed** — transparent `.gz` and `.zstd` compression is available via [`mrpt::io::CCompressedOutputStream`](https://docs.mrpt.org/reference/latest/class_mrpt_io_CCompressedOutputStream.html) at no extra cost to the caller.
-- **Stream-agnostic** — works with any stream in [mrpt-io](https://docs.mrpt.org/reference/latest/group_mrpt_io_grp.html): local files, TCP sockets, named pipes, in-memory buffers, and more.
+- **Compressed** — transparent `.gz` and `.zstd` compression is available via [`mrpt::io::CCompressedOutputStream`](https://docs.mrpt.org/reference/stable/class_mrpt_io_CCompressedOutputStream.html) at no extra cost to the caller.
+- **Stream-agnostic** — works with any stream in [mrpt-io](https://docs.mrpt.org/reference/stable/group_mrpt_io_grp.html): local files, TCP sockets, named pipes, in-memory buffers, and more.
 
 ## Requirements
 
 - **C++17** or newer (required by MRPT).
-- **MRPT** ≥ 2.4: install via `sudo apt install libmrpt-dev` (Ubuntu 22.04+), via the ROS 2 packages listed in the table above, or follow the [MRPT install guide](https://docs.mrpt.org/reference/latest/download-mrpt.html).
+- **MRPT** ≥ 2.4: install via `sudo apt install libmrpt-dev` (Ubuntu 22.04+), via the ROS 2 packages listed in the table above, or follow the [MRPT install guide](https://docs.mrpt.org/reference/stable/download-mrpt.html).
 - **GTSAM**: build from source or install from [the official PPA](https://gtsam.org/get_started/).
 
 ## Supported types

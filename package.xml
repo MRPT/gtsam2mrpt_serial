@@ -13,9 +13,14 @@
   <buildtool_depend>cmake</buildtool_depend>
 
   <depend>mola_common</depend>
-  <depend>mrpt_libbase</depend>
-  <depend>mrpt_libmath</depend>
-  <depend>mrpt_libposes</depend>
+  <depend>mrpt_io</depend>
+  <depend>mrpt_serialization</depend>
+  <depend>mrpt_system</depend>
+  <depend>mrpt_rtti</depend>
+  <depend>mrpt_containers</depend>
+  <depend>mrpt_math</depend>
+  <depend>mrpt_poses</depend>
+  <depend>mrpt_random</depend>
   <depend>gtsam</depend>
 
   <export>
