@@ -22,11 +22,11 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        sudo add-apt-repository ppa:joseluisblancoc/mrpt   # develop branch
+        sudo add-apt-repository ppa:joseluisblancoc/mrpt3-develop   # develop branch
         sudo add-apt-repository ppa:borglab/gtsam-develop
         
         sudo apt-get -y update
-        sudo apt install -y libmrpt-dev 
+        sudo apt install -y libmrpt-poses-dev libmrpt-io-dev
         sudo apt install -y libgtsam-dev
 
     - name: Configure CMake
