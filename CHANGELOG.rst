@@ -2,6 +2,15 @@
 Changelog for package gtsam2mrpt_serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#1 <https://github.com/MRPT/gtsam2mrpt_serial/issues/1>`_ from MRPT/feat/mrpt3
+  Port to MRPT 3.x
+* ci: adapt for mrpt3
+* add formatter script
+* docs: add ROS 2 Lyrical badge row, update Rolling to Ubuntu 26.04 (resolute)
+* Contributors: Jose Luis Blanco-Claraco
+
 0.2.0 (2026-02-21)
 ------------------
 * Modernize and fix style
