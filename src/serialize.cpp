@@ -498,34 +498,24 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
     out.WriteAs<uint16_t>(factor.keys().size());
     for (const auto& k : factor.keys()) out << k;
 
-// Each macro expansion introduces its own unique variable name (f_##TYPE__)
-// to avoid -Wshadow warnings from repeated use of the same identifier across
-// consecutive else-if branches.
-#define SERIALIZE_PRIOR_FACTOR(TYPE__)                               \
-    else if (auto* f_##TYPE__ =                                      \
-                 dynamic_cast<const PriorFactor<TYPE__>*>(&factor);  \
-             f_##TYPE__)                                             \
-    {                                                                \
-        out.WriteAs<std::string>("PriorFactor<" #TYPE__ ">");        \
-        serialize_noise_model(out, f_##TYPE__->noiseModel());        \
-        out << GenericValue<TYPE__>(f_##TYPE__->prior()); /*NOLINT*/ \
-    }
-
-#define SERIALIZE_BETWEEN_FACTOR(TYPE__)                                \
-    else if (auto* f_##TYPE__ =                                         \
-                 dynamic_cast<const BetweenFactor<TYPE__>*>(&factor);   \
-             f_##TYPE__)                                                \
+#define SERIALIZE_PRIOR_FACTOR(TYPE__)                                  \
+    if (auto* f = dynamic_cast<const PriorFactor<TYPE__>*>(&factor); f) \
     {                                                                   \
-        out.WriteAs<std::string>("BetweenFactor<" #TYPE__ ">");         \
-        serialize_noise_model(out, f_##TYPE__->noiseModel());           \
-        out << GenericValue<TYPE__>(f_##TYPE__->measured()); /*NOLINT*/ \
+        out.WriteAs<std::string>("PriorFactor<" #TYPE__ ">");           \
+        serialize_noise_model(out, f->noiseModel());                    \
+        out << GenericValue<TYPE__>(f->prior()); /*NOLINT*/             \
+        return out;                                                     \
     }
 
-    // `if (0) {}` is a deliberate idiom: it gives all the SERIALIZE_*
-    // macros a uniform `else if (...)` prefix without a special-cased first
-    // branch.
-    if (0) {}  // NOLINT(readability-simplify-boolean-expr)
-    //
+#define SERIALIZE_BETWEEN_FACTOR(TYPE__)                                  \
+    if (auto* f = dynamic_cast<const BetweenFactor<TYPE__>*>(&factor); f) \
+    {                                                                     \
+        out.WriteAs<std::string>("BetweenFactor<" #TYPE__ ">");           \
+        serialize_noise_model(out, f->noiseModel());                      \
+        out << GenericValue<TYPE__>(f->measured()); /*NOLINT*/            \
+        return out;                                                       \
+    }
+
     SERIALIZE_PRIOR_FACTOR(Point2)
     SERIALIZE_PRIOR_FACTOR(Point3)
     SERIALIZE_PRIOR_FACTOR(Pose2)
@@ -535,19 +525,16 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
     SERIALIZE_BETWEEN_FACTOR(Point3)
     SERIALIZE_BETWEEN_FACTOR(Pose2)
     SERIALIZE_BETWEEN_FACTOR(Pose3)
-    //
-    else
-    {
-        std::cerr << "Serialization not implemented for this "
-                     "gtsam::NonlinearFactor:\n";
-        factor.print();
-        THROW_EXCEPTION(
-            "Serialization not implemented, see error message above for "
-            "type "
-            "details.");
-    }
 
-    return out;
+#undef SERIALIZE_PRIOR_FACTOR
+#undef SERIALIZE_BETWEEN_FACTOR
+
+    std::cerr << "Serialization not implemented for this "
+                 "gtsam::NonlinearFactor:\n";
+    factor.print();
+    THROW_EXCEPTION(
+        "Serialization not implemented, see error message above for type "
+        "details.");
 }
 
 // ----------------------------------
