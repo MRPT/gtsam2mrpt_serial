@@ -6,7 +6,7 @@
   <description>A C++ library offering a GTSAM ⇆ mrpt-serialization bridge.</description>
 
   <maintainer email="joseluisblancoc@gmail.com">Jose-Luis Blanco-Claraco</maintainer>
-  <license>MIT</license>
+  <license>BSD-3-Clause</license>
 
   <url type="website">https://github.com/MRPT/gtsam2mrpt_serial</url>
 

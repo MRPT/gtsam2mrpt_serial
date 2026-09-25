@@ -25,8 +25,8 @@ Serialize and deserialize GTSAM data structures — including `NonlinearFactorGr
 ## Requirements
 
 - **C++17** or newer (required by MRPT).
-- **MRPT** ≥ 2.4: install via `sudo apt install libmrpt-dev` (Ubuntu 22.04+), via the ROS 2 packages listed in the table above, or follow the [MRPT install guide](https://docs.mrpt.org/reference/stable/download-mrpt.html).
-- **GTSAM**: build from source or install from [the official PPA](https://gtsam.org/get_started/).
+- **MRPT** ≥ 3.0 (modules `mrpt_serialization`, `mrpt_io`, `mrpt_math`, `mrpt_poses`): install the ROS 2 packages (`sudo apt install ros-$ROS_DISTRO-mrpt-io ros-$ROS_DISTRO-mrpt-poses`), or follow the [MRPT install guide](https://docs.mrpt.org/reference/stable/download-mrpt.html).
+- **GTSAM**: 4.2 (Boost-based) and ≥ 4.3 (Boost-free) are both supported. Install the ROS 2 package (`sudo apt install ros-$ROS_DISTRO-gtsam`), build from source, or use [the official PPA](https://gtsam.org/get_started/).
 
 ## Supported types
 
@@ -64,7 +64,7 @@ gtsam::Values               initial2;
 arch2 >> graph2 >> initial2;
 ```
 
-For a more complete example, see [`gtsam2mrpt_serial/tests/main.cpp`](gtsam2mrpt_serial/tests/main.cpp).
+For a more complete example, see [`tests/main.cpp`](tests/main.cpp).
 
 ## Installation
 
@@ -93,7 +93,7 @@ Profiling against GTSAM's native Boost binary serialization on an Intel Core i7-
 **Deserialization**
 ![Deserialization benchmark](docs/profiling-deser.png)
 
-Benchmarking code: [`gtsam2mrpt_serial/tests/main.cpp`](gtsam2mrpt_serial/tests/main.cpp).
+Benchmarking code: [`tests/main.cpp`](tests/main.cpp).
 
 ## License
 
