@@ -2,6 +2,16 @@
 Changelog for package gtsam2mrpt_serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Match m-estimators by exact type when serializing
+* ci: build and test on all ROS 2 distros with their own GTSAM version
+* Fix noise model serialization bugs and add unit tests
+* Add SPDX license identifiers to source headers
+* Unify license as BSD-3-Clause; update README for MRPT 3 and fix broken links
+* Fix -Wshadow warnings in factor serialization macros
+* Contributors: Jose Luis Blanco-Claraco
+
 0.3.0 (2026-09-23)
 ------------------
 * Merge pull request `#1 <https://github.com/MRPT/gtsam2mrpt_serial/issues/1>`_ from MRPT/feat/mrpt3
