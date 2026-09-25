@@ -3,6 +3,7 @@
    |                                                                        |
    | Copyright (c) 2022-2026, Jose Luis Blanco Claraco and contributors     |
    | Released under 3-clause BSD license                                    |
+   | SPDX-License-Identifier: BSD-3-Clause                                  |
    +------------------------------------------------------------------------+ */
 
 #include "sampleData.h"
