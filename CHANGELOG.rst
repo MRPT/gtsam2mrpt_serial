@@ -2,8 +2,8 @@
 Changelog for package gtsam2mrpt_serial
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.0 (2026-09-25)
+------------------
 * Match m-estimators by exact type when serializing
 * ci: build and test on all ROS 2 distros with their own GTSAM version
 * Fix noise model serialization bugs and add unit tests
