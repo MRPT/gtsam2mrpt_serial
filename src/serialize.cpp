@@ -255,66 +255,39 @@ void serialize_noise_robust(
     // Base: ReweightScheme reweight_;
     out.WriteAs<uint32_t>(robust->reweightScheme());
 
-    // Derived:
-    if (auto* n = dynamic_cast<const mEstimator::Null*>(robust.get()); n)
+    // Derived: match exact types, so subclasses of the supported estimators
+    // (which may override their behavior) are not silently stored as their
+    // base class.
+    const std::type_info& ti = typeid(*robust);
+
+#define SERIALIZE_MESTIMATOR(TYPE__)                           \
+    if (ti == typeid(mEstimator::TYPE__))                      \
+    {                                                          \
+        out.WriteAs<std::string>(#TYPE__);                     \
+        out << static_cast<const mEstimator::TYPE__&>(*robust) \
+                   .modelParameter();                          \
+        return;                                                \
+    }
+
+    if (ti == typeid(mEstimator::Null))
     {
         // no params
         out.WriteAs<std::string>("Null");
+        return;
     }
-    else if (auto* n2 = dynamic_cast<const mEstimator::Fair*>(robust.get()); n2)
-    {
-        out.WriteAs<std::string>("Fair");
-        out << n2->modelParameter();
-    }
-    else if (auto* n3 = dynamic_cast<const mEstimator::Huber*>(robust.get());
-             n3)
-    {
-        out.WriteAs<std::string>("Huber");
-        out << n3->modelParameter();
-    }
-    else if (auto* n4 = dynamic_cast<const mEstimator::Cauchy*>(robust.get());
-             n4)
-    {
-        out.WriteAs<std::string>("Cauchy");
-        out << n4->modelParameter();
-    }
-    else if (auto* n5 = dynamic_cast<const mEstimator::Tukey*>(robust.get());
-             n5)
-    {
-        out.WriteAs<std::string>("Tukey");
-        out << n5->modelParameter();
-    }
-    else if (auto* n6 = dynamic_cast<const mEstimator::Welsch*>(robust.get());
-             n6)
-    {
-        out.WriteAs<std::string>("Welsch");
-        out << n6->modelParameter();
-    }
-    else if (auto* n7 =
-                 dynamic_cast<const mEstimator::GemanMcClure*>(robust.get());
-             n7)
-    {
-        out.WriteAs<std::string>("GemanMcClure");
-        out << n7->modelParameter();
-    }
-    else if (auto* n8 = dynamic_cast<const mEstimator::DCS*>(robust.get()); n8)
-    {
-        out.WriteAs<std::string>("DCS");
-        out << n8->modelParameter();
-    }
-    else if (auto* n9 =
-                 dynamic_cast<const mEstimator::L2WithDeadZone*>(robust.get());
-             n9)
-    {
-        out.WriteAs<std::string>("L2WithDeadZone");
-        out << n9->modelParameter();
-    }
-    else
-    {
-        THROW_EXCEPTION_FMT(
-            "Serialization not implemented for m-estimator type '%s'",
-            typeid(*robust).name());
-    }
+    SERIALIZE_MESTIMATOR(Fair)
+    SERIALIZE_MESTIMATOR(Huber)
+    SERIALIZE_MESTIMATOR(Cauchy)
+    SERIALIZE_MESTIMATOR(Tukey)
+    SERIALIZE_MESTIMATOR(Welsch)
+    SERIALIZE_MESTIMATOR(GemanMcClure)
+    SERIALIZE_MESTIMATOR(DCS)
+    SERIALIZE_MESTIMATOR(L2WithDeadZone)
+
+#undef SERIALIZE_MESTIMATOR
+
+    THROW_EXCEPTION_FMT(
+        "Serialization not implemented for m-estimator type '%s'", ti.name());
 }
 
 gtsam::noiseModel::mEstimator::Base::shared_ptr deserialize_noise_robust(

@@ -209,14 +209,11 @@ static void testRobustNoiseModels()
 }
 
 // --------------
-// An m-estimator unknown to the library.
-class UnsupportedEstimator : public gtsam::noiseModel::mEstimator::Base
+// A subclass of a supported m-estimator, which must not be stored as its base.
+class UnsupportedEstimator : public gtsam::noiseModel::mEstimator::Huber
 {
    public:
-    double weight(double) const override { return 1.0; }
-    double loss(double d) const override { return 0.5 * d * d; }
-    void   print(const std::string&) const override {}
-    bool   equals(const Base&, double) const override { return false; }
+    using Huber::Huber;
 };
 
 static void testUnsupportedEstimatorThrows()
