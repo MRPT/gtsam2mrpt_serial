@@ -21,6 +21,9 @@
 #include <mrpt/poses/gtsam_wrappers.h>
 #include <mrpt/serialization/CArchive.h>
 
+#include <limits>
+#include <typeinfo>
+
 // ----------------------------------
 // Serialize individual values
 // ----------------------------------
@@ -235,12 +238,16 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator>>(
     return in;
 }
 
-static void serialize_noise_robust(
+namespace
+{
+void serialize_noise_robust(
     mrpt::serialization::CArchive&                         out,
     const gtsam::noiseModel::mEstimator::Base::shared_ptr& robust)
 {
-    out.WriteAs<bool>(robust.get() != nullptr);
-    if (!robust) return;
+    // A Robust noise model always requires an m-estimator. The flag is kept in
+    // the stream for format compatibility.
+    ASSERTMSG_(robust, "Robust noise model has a null m-estimator");
+    out.WriteAs<bool>(true);
 
     using namespace gtsam;
     using namespace gtsam::noiseModel;
@@ -302,16 +309,22 @@ static void serialize_noise_robust(
         out.WriteAs<std::string>("L2WithDeadZone");
         out << n9->modelParameter();
     }
+    else
+    {
+        THROW_EXCEPTION_FMT(
+            "Serialization not implemented for m-estimator type '%s'",
+            typeid(*robust).name());
+    }
 }
 
-static gtsam::noiseModel::mEstimator::Base::shared_ptr deserialize_noise_robust(
+gtsam::noiseModel::mEstimator::Base::shared_ptr deserialize_noise_robust(
     mrpt::serialization::CArchive& in)
 {
     using namespace gtsam;
     using namespace gtsam::noiseModel;
 
     const bool isNotNull = in.ReadAs<bool>();
-    ASSERT_(isNotNull);
+    ASSERTMSG_(isNotNull, "Robust noise model has a null m-estimator");
 
     // Base: ReweightScheme reweight_;
     const auto scheme =
@@ -373,7 +386,7 @@ static gtsam::noiseModel::mEstimator::Base::shared_ptr deserialize_noise_robust(
     }
 }
 
-static void serialize_noise_model(
+void serialize_noise_model(
     mrpt::serialization::CArchive& out, const gtsam::SharedNoiseModel& noise)
 {
     out.WriteAs<bool>(noise.get() != nullptr);
@@ -401,8 +414,11 @@ static void serialize_noise_model(
                  dynamic_cast<const noiseModel::Constrained*>(noise.get());
              n3)
     {
-        out.WriteAs<std::string>("Constrained");
+        // "Constrained" (mu only, all sigmas zero) is only read, for backward
+        // compatibility. Mixed constraints need the sigmas too.
+        out.WriteAs<std::string>("ConstrainedMixed");
         out << mrpt::math::CMatrixD(n3->mu());
+        out << mrpt::math::CMatrixD(n3->sigmas());
     }
     else if (auto* n4 = dynamic_cast<const noiseModel::Diagonal*>(noise.get());
              n4)
@@ -431,7 +447,7 @@ static void serialize_noise_model(
     }
 }
 
-static gtsam::SharedNoiseModel deserialize_noise_model(
+gtsam::SharedNoiseModel deserialize_noise_model(
     mrpt::serialization::CArchive& in)
 {
     using namespace gtsam;
@@ -466,6 +482,15 @@ static gtsam::SharedNoiseModel deserialize_noise_model(
         gtsam::Matrix matMu = mMu.asEigen();
         return noiseModel::Constrained::All(dim, matMu);
     }
+    else if (t == "ConstrainedMixed")
+    {
+        mrpt::math::CMatrixD mMu;
+        mrpt::math::CMatrixD mSigmas;
+        in >> mMu >> mSigmas;
+        gtsam::Vector matMu     = mMu.asEigen();
+        gtsam::Vector matSigmas = mSigmas.asEigen();
+        return noiseModel::Constrained::MixedSigmas(matMu, matSigmas);
+    }
     else if (t == "Isotropic")
     {
         double sigma = in.ReadAs<double>();
@@ -486,6 +511,7 @@ static gtsam::SharedNoiseModel deserialize_noise_model(
         THROW_EXCEPTION_FMT("Unknown noiseModel type: '%s'", t.c_str());
     }
 }
+}  // namespace
 
 // ----------------------------------
 // Serialize individual Factors
@@ -496,6 +522,9 @@ mrpt::serialization::CArchive& gtsam2mrpt_serial::operator<<(
     using namespace gtsam;
 
     // Keys:
+    ASSERTMSG_(
+        factor.keys().size() <= std::numeric_limits<uint16_t>::max(),
+        "Factor has too many keys to be serialized");
     out.WriteAs<uint16_t>(factor.keys().size());
     for (const auto& k : factor.keys()) out << k;
 
